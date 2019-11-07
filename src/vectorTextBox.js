@@ -20,7 +20,7 @@ export function register() {
 
 			const styles = this.getCompleteStyleDeclaration(lineIndex, charIndex),
 				font = fabric.___getOpenTypeFont(styles.fontFamily, styles.fontWeight, styles.fontStyle),
-				path = font.getPath(char, left, top, styles.fontSize);
+				path = font.getPath(char, left, top + (styles.deltaY || 0), styles.fontSize);
 
 			path.fill = styles.fill;
 			path.stroke = styles.stroke;
@@ -166,7 +166,7 @@ export function register() {
 					const char = line[i];
 					let charBox = this.__charBounds[l][i],
 						left = offsets.textLeft + lineLeftOffset + charBox.left,
-						top = offsets.textTop + lineTopOffset.lineTop + lineTopOffset.offset + charBox.deltaY,
+						top = offsets.textTop + lineTopOffset.lineTop + lineTopOffset.offset,
 						backgroundTop = offsets.textTop + lineTopOffset.lineTop;
 
 					const path = this.___getPathFromChar(char, l, i, left, top),
