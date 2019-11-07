@@ -1,0 +1,13 @@
+{
+  "name": "fabric.VectorTextBox",
+  "version": "1.0.0",
+  "description": "Vectorized texts for Fabric.js",
+  "main": "index.js",
+  "repository": "git@github.com:cloudpix/fabric.VectorTextBox.git",
+  "author": "CloudPix",
+  "license": "Apache 2.0",
+  "dependencies": {
+    "fabric": "^3.4.0",
+    "opentype.js": "^1.1.0"
+  }
+}
