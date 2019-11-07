@@ -10,23 +10,27 @@ export function register() {
 		type: 'VectorTextBox',
 
 		initialize: function (text, options) {
-			
+
 			this.callSuper('initialize', text, options);
-			
+
 			if (this.canvas) this.canvas.requestRenderAll();
 		},
 
 		___getPathFromChar: function (char, lineIndex, charIndex, left, top) {
 
 			const styles = this.getCompleteStyleDeclaration(lineIndex, charIndex),
-				//fontDeclaration = this._getFontDeclaration(styles),
 				font = fabric.___getOpenTypeFont(styles.fontFamily, styles.fontWeight, styles.fontStyle),
 				path = font.getPath(char, left, top, styles.fontSize);
-			/* deltaY: 0 | linethrough: false | overline: false | underline: false */
+
 			path.fill = styles.fill;
 			path.stroke = styles.stroke;
 			path.strokeWidth = styles.strokeWidth;
 			path.backgroundColor = styles.textBackgroundColor;
+			path.linethrough = styles.linethrough;
+			path.overline = styles.overline;
+			path.underline = styles.underline;
+			path.fontSize = styles.fontSize;
+			path.deltaY = styles.deltaY;
 			path.opacity = this.opacity;
 			path.strokeDashArray = this.strokeDashArray;
 			path.strokeDashOffset = this.strokeDashOffset;
@@ -122,17 +126,33 @@ export function register() {
 				`<rect fill="${this.backgroundColor}" fill-opacity="${this.opacity}" x="${toFixed(offsets.textLeft || 0)}" y="${toFixed(offsets.textTop || 0)}" width="${toFixed(this.width)}" height="${toFixed(this.height)}"></rect>`
 		},
 
-		___getLineSVGBackground: function (path, left, top, height, width) {
+		___getCharSVGBackground: function (path, left, top, height, width) {
 			return !path || !path.backgroundColor ? '' :
 				`<rect fill="${path.backgroundColor}" fill-opacity="${this.opacity}" x="${toFixed(left)}" y="${toFixed(top)}" width="${toFixed(width)}" height="${toFixed(height)}"></rect>`;
+		},
+
+		___getCharTextDecorationLines: function (path, left, top, height, width) {
+
+			if (!path) return '';
+
+			const rectHeight = toFixed(path.fontSize / 15);
+
+			let lines = '';
+
+			path.overline && (lines += `<rect y="${toFixed(top + (this.offsets.overline * height))}" height="${rectHeight}" x="${toFixed(left)}" width="${toFixed(width)}" fill="${path.fill}" fill-opacity="${this.opacity}"></rect>`);
+			path.linethrough && (lines += `<rect y="${toFixed(top + (this.offsets.linethrough * height))}" height="${rectHeight}" x="${toFixed(left)}" width="${toFixed(width)}" fill="${path.fill}" fill-opacity="${this.opacity}"></rect>`);
+			path.underline && (lines += `<rect y="${toFixed(top + (this.offsets.underline * height))}" height="${rectHeight}" x="${toFixed(left)}" width="${toFixed(width)}" fill="${path.fill}" fill-opacity="${this.opacity}"></rect>`);
+
+			return lines;
 		},
 
 		_toSVG: function (reviver) {
 
 			const offsets = this._getSVGLeftTopOffsets();
 
-			const rects = [this.___getSVGBackground(offsets)];
-			const paths = [];
+			const rects = [this.___getSVGBackground(offsets)],
+				lines = [],
+				paths = [];
 
 			for (let l = 0; l < this.textLines.length; l++) {
 
@@ -150,15 +170,17 @@ export function register() {
 						backgroundTop = offsets.textTop + lineTopOffset.lineTop;
 
 					const path = this.___getPathFromChar(char, l, i, left, top),
-						rectSVG = `${this.___getLineSVGBackground(path, left, backgroundTop, lineHeight, charBox.width)}`,
+						rectSVG = `${this.___getCharSVGBackground(path, left, backgroundTop, lineHeight, charBox.width)}`,
+						linesSVG = `${this.___getCharTextDecorationLines(path, left, top, lineHeight, charBox.width)}`,
 						pathSVG = `<path style="${this.___computePathStyle(path)}" d="${path.toPathData()}"></path>`;
 
 					rects.push(rectSVG);
+					lines.push(linesSVG);
 					paths.push(pathSVG);
 				}
 			}
 
-			let result = `<g>${rects.join('')}${paths.join('')}</g>`;
+			let result = `<g>${rects.join('')}${lines.join('')}${paths.join('')}</g>`;
 
 			(typeof reviver === 'function') && reviver(result);
 
