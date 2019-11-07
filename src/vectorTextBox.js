@@ -8,12 +8,10 @@ export function register() {
 	fabric.VectorTextBox = fabric.util.createClass(fabric.Textbox, {
 
 		type: 'VectorTextBox',
-		___canRender: false,
 
 		initialize: function (text, options) {
 			
 			this.callSuper('initialize', text, options);
-			this.___canRender = true;
 			
 			if (this.canvas) this.canvas.requestRenderAll();
 		},
@@ -63,8 +61,6 @@ export function register() {
 		},
 
 		_renderChar: function (method, ctx, lineIndex, charIndex, _char, left, top) {
-
-			if (!this.___canRender) return;
 
 			const path = this.___getPathFromChar(_char, lineIndex, charIndex, left, top);
 			path.draw(ctx);
