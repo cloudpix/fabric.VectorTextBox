@@ -175,8 +175,8 @@ export function register() {
 						pathSVG = `<path style="${this.___computePathStyle(path)}" d="${path.toPathData()}"></path>`;
 
 					rects.push(rectSVG);
-					lines.push(linesSVG);
 					paths.push(pathSVG);
+					lines.push(linesSVG);
 				}
 			}
 
